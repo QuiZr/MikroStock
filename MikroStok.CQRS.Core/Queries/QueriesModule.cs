@@ -14,17 +14,6 @@ namespace MikroStok.CQRS.Core.Queries
                 .Where(x => x.IsAssignableTo<IHandleQuery>())
                 .AsImplementedInterfaces();
 
-            builder.Register<Func<Type, IHandleQuery>>(c =>
-            {
-                var ctx = c.Resolve<IComponentContext>();
-
-                return t =>
-                {
-                    var handlerType = typeof(IHandleQuery<,>).MakeGenericType(t);
-                    return (IHandleQuery) ctx.Resolve(handlerType);
-                };
-            });
-
             builder.RegisterType<QueryBus>()
                 .AsImplementedInterfaces();
         }

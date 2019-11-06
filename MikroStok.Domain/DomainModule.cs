@@ -1,6 +1,7 @@
 using Autofac;
 using FluentValidation;
 using MikroStok.CQRS.Core.Commands.Interfaces;
+using MikroStok.CQRS.Core.Queries.Interfaces;
 
 namespace MikroStok.Domain
 {
@@ -17,6 +18,9 @@ namespace MikroStok.Domain
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(x => x.IsAssignableTo<IValidator>())
                 .AsImplementedInterfaces();
+            
+            builder.RegisterAssemblyTypes(ThisAssembly)
+                .AsClosedTypesOf(typeof(IHandleQuery<,>)).AsImplementedInterfaces();
         }
     }
 }

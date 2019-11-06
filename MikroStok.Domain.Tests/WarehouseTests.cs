@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
@@ -6,17 +7,19 @@ using FluentValidation;
 using Marten;
 using Marten.Storage;
 using MikroStok.CQRS.Core.Commands.Interfaces;
+using MikroStok.CQRS.Core.Queries.Interfaces;
 using MikroStok.Domain.Commands;
 using MikroStok.Domain.Models;
+using MikroStok.Domain.Queries;
 using Npgsql;
 using NUnit.Framework;
 
 namespace MikroStok.Domain.Tests
 {
-    public class WarehouseAggregateTests
+    public class WarehouseTests
     {
+        private IQueryBus _queryBus;
         private ICommandsBus _commandsBus;
-        private IContainer _container;
         private IDocumentStore _documentStore;
 
         [SetUp]
@@ -24,10 +27,11 @@ namespace MikroStok.Domain.Tests
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule(new DomainTestsModule());
-            _container = builder.Build();
+            var container = builder.Build();
 
-            _commandsBus = _container.Resolve<ICommandsBus>();
-            _documentStore = _container.Resolve<IDocumentStore>();
+            _queryBus = container.Resolve<IQueryBus>();
+            _commandsBus = container.Resolve<ICommandsBus>();
+            _documentStore = container.Resolve<IDocumentStore>();
         }
 
 
@@ -45,10 +49,8 @@ namespace MikroStok.Domain.Tests
             await _commandsBus.Send(createCommand);
 
             // Assert
-            var projectionResult = await _documentStore.QuerySession()
-                .Query<Warehouse>()
-                .Where(x => x.Id == createCommand.Id)
-                .SingleAsync();
+            var query = new GetWarehousesQuery();
+            var projectionResult = (await _queryBus.Send<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query)).Single();
 
             Assert.AreEqual(createCommand.Id, projectionResult.Id);
             Assert.AreEqual(createCommand.Name, projectionResult.Name);
@@ -86,14 +88,40 @@ namespace MikroStok.Domain.Tests
             await _commandsBus.Send(deleteCommand);
 
             // Assert
-            var projectionResult = await _documentStore.QuerySession()
-                .Query<Warehouse>()
-                .Where(x => x.Id == createCommand.Id)
-                .SingleOrDefaultAsync();
+            var query = new GetWarehousesQuery();
+            var projectionResult = await _queryBus.Send<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
 
-            Assert.IsNull(projectionResult);
+            Assert.IsEmpty(projectionResult);
         }
 
+        [Test]
+        public async Task WhenTwoCreated_CanBeReadUsingQuery()
+        {
+            // Arrange
+            var createCommand1 = new CreateWarehouseCommand
+            {
+                Id = Guid.NewGuid(),
+                Name = "łerhałs"
+            };
+            var createCommand2 = new CreateWarehouseCommand
+            {
+                Id = Guid.NewGuid(),
+                Name = "łerhałsTWO"
+            };
+
+            // Act
+            await _commandsBus.Send(createCommand1);
+            await _commandsBus.Send(createCommand2);
+
+            // Assert
+            var query = new GetWarehousesQuery();
+            var projectionResult = await _queryBus.Send<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
+
+            Assert.AreEqual(2, projectionResult.Count);
+            Assert.True(projectionResult.Any(x => x.Name == createCommand1.Name));
+            Assert.True(projectionResult.Any(x => x.Name == createCommand2.Name));
+        }
+        
         [TearDown]
         public async Task Cleanup()
         {
