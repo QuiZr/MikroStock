@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using MikroStok.CQRS.Core.Commands.Interfaces;
 
 namespace MikroStok.CQRS.Core.Commands
@@ -8,15 +9,14 @@ namespace MikroStok.CQRS.Core.Commands
         private readonly Func<Type, IHandleCommand> _handlersFactory;
 
         public CommandsBus(Func<Type, IHandleCommand> handlersFactory)
-
         {
             _handlersFactory = handlersFactory;
         }
 
-        public void Send<TCommand>(TCommand command) where TCommand : ICommand
+        public async Task Send<TCommand>(TCommand command) where TCommand : ICommand
         {
             var handler = (IHandleCommand<TCommand>) _handlersFactory(typeof(TCommand));
-            handler.Handle(command);
+            await handler.Handle(command);
         }
     }
 }

@@ -7,6 +7,9 @@ namespace MikroStok.ES.Core
     // Infrastructure to capture modifications to state in events
     public abstract class AggregateBase
     {
+        // JsonIgnore - for making sure that it won't be stored in inline projection
+        [JsonIgnore] private readonly List<object> _uncommittedEvents = new List<object>();
+
         // For indexing our event streams
         public Guid Id { get; protected set; }
 
@@ -14,10 +17,6 @@ namespace MikroStok.ES.Core
         public int Version { get; protected set; }
 
         public bool IsDeleted { get; protected set; }
-        
-        // JsonIgnore - for making sure that it won't be stored in inline projection
-        [JsonIgnore]
-        private readonly List<object> _uncommittedEvents = new List<object>();
 
         // Get the deltas, i.e. events that make up the state, not yet persisted
         public IEnumerable<object> GetUncommittedEvents()

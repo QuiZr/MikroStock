@@ -1,8 +1,12 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MikroStok.CQRS.Core", "MikroStok.CQRS.Core\MikroStok.CQRS.Core.csproj", "{0FC36615-450F-4D76-A8F6-FA101282AC70}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MikroStok.ES.Core", "MikroStok.ES.Core\MikroStok.ES.Core.csproj", "{F64BE7C6-E07B-4BD2-AE9F-7D1F3EA4071F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MikroStok.Domain", "MikroStok.Domain\MikroStok.Domain.csproj", "{407C94B8-1822-4128-88BF-433B3D0D86A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MikroStok.Domain.Tests", "MikroStok.Domain.Tests\MikroStok.Domain.Tests.csproj", "{AA29F54D-2472-4900-99BD-D46F0315267B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +22,13 @@ Global
 		{F64BE7C6-E07B-4BD2-AE9F-7D1F3EA4071F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F64BE7C6-E07B-4BD2-AE9F-7D1F3EA4071F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F64BE7C6-E07B-4BD2-AE9F-7D1F3EA4071F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{407C94B8-1822-4128-88BF-433B3D0D86A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{407C94B8-1822-4128-88BF-433B3D0D86A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{407C94B8-1822-4128-88BF-433B3D0D86A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{407C94B8-1822-4128-88BF-433B3D0D86A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA29F54D-2472-4900-99BD-D46F0315267B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA29F54D-2472-4900-99BD-D46F0315267B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA29F54D-2472-4900-99BD-D46F0315267B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA29F54D-2472-4900-99BD-D46F0315267B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

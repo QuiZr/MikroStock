@@ -23,6 +23,7 @@ namespace MikroStok.ES.Core
                 session.Events.Append(aggregate.Id, aggregate.Version, events);
                 session.SaveChanges();
             }
+
             // Once successfully persisted, clear events from list of uncommitted events
             aggregate.ClearUncommittedEvents();
         }
@@ -36,6 +37,4 @@ namespace MikroStok.ES.Core
             }
         }
     }
-
-
 }
