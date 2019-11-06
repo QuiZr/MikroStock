@@ -1,30 +1,30 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MikroStok.CQRS.Core.Commands.Interfaces;
-using MikroStok.Domain.Aggregates;
-using MikroStok.ES.Core;
+using MikroStok.Domain.Events;
+using MikroStok.ES.Core.Events;
 
 namespace MikroStok.Domain.Commands
 {
     public class CreateWarehouseCommandHandler : IHandleCommand<CreateWarehouseCommand>
     {
-        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IEventBus _eventBus;
         private readonly IValidator<CreateWarehouseCommand> _validator;
 
-        public CreateWarehouseCommandHandler(IAggregateRepository aggregateRepository,
-            IValidator<CreateWarehouseCommand> validator)
+        public CreateWarehouseCommandHandler(IValidator<CreateWarehouseCommand> validator, IEventBus eventBus)
         {
-            _aggregateRepository = aggregateRepository;
             _validator = validator;
+            _eventBus = eventBus;
         }
 
         public async Task Handle(CreateWarehouseCommand command)
         {
             var validationResult = await _validator.ValidateAsync(command);
-            if (!validationResult.IsValid) throw new ValidationException(validationResult.Errors);
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
 
-            var warehouse = new WarehouseAggregate(command);
-            _aggregateRepository.Store(warehouse);
+            var e = new WarehouseCreatedEvent(command.Id, command.Name, 1);
+            await _eventBus.Publish(e);
         }
     }
 }

@@ -13,8 +13,7 @@ namespace MikroStok.Domain
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(x => x.IsAssignableTo<IHandleCommand>())
                 .AsImplementedInterfaces();
-            
-            
+
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(x => x.IsAssignableTo<IValidator>())
                 .AsImplementedInterfaces();

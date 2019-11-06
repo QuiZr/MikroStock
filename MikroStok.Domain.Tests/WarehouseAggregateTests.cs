@@ -2,34 +2,34 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
-using Baseline;
 using FluentValidation;
 using Marten;
-using Marten.Services.Events;
-using MikroStok.CQRS.Core.Commands;
+using Marten.Storage;
 using MikroStok.CQRS.Core.Commands.Interfaces;
-using MikroStok.Domain.Aggregates;
 using MikroStok.Domain.Commands;
-using MikroStok.ES.Core;
+using MikroStok.Domain.Models;
+using Npgsql;
 using NUnit.Framework;
 
 namespace MikroStok.Domain.Tests
 {
     public class WarehouseAggregateTests
     {
-        private IAggregateRepository _aggregateRepository;
         private ICommandsBus _commandsBus;
         private IContainer _container;
+        private IDocumentStore _documentStore;
+
         [SetUp]
         public void Setup()
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule(new DomainTestsModule());
             _container = builder.Build();
-            
+
             _commandsBus = _container.Resolve<ICommandsBus>();
-            _aggregateRepository =  _container.Resolve<IAggregateRepository>();
+            _documentStore = _container.Resolve<IDocumentStore>();
         }
+
 
         [Test]
         public async Task WhenCreated_CanBeReadProperly()
@@ -45,15 +45,18 @@ namespace MikroStok.Domain.Tests
             await _commandsBus.Send(createCommand);
 
             // Assert
-            var aggregate = await _aggregateRepository.Load<WarehouseAggregate>(createCommand.Id);
+            var projectionResult = await _documentStore.QuerySession()
+                .Query<Warehouse>()
+                .Where(x => x.Id == createCommand.Id)
+                .SingleAsync();
 
-            Assert.AreEqual(createCommand.Name, aggregate.Name);
-            Assert.AreEqual(1, aggregate.Version);
-            Assert.AreEqual(false, aggregate.IsDeleted);
+            Assert.AreEqual(createCommand.Id, projectionResult.Id);
+            Assert.AreEqual(createCommand.Name, projectionResult.Name);
+            Assert.AreEqual(1, projectionResult.Version);
         }
 
         [Test]
-        public async Task WhenCreatedWithInvalidName_ThrowsValidationException()
+        public void WhenCreatedWithInvalidName_ThrowsValidationException()
         {
             // Arrange
             var createCommand = new CreateWarehouseCommand
@@ -66,8 +69,7 @@ namespace MikroStok.Domain.Tests
             var validationException = Assert.CatchAsync<ValidationException>(() => _commandsBus.Send(createCommand));
             Assert.AreEqual(1, validationException.Errors.Count());
         }
-        
-        
+
         [Test]
         public async Task WhenCreatedAndDeleted_CanBeReadProperly()
         {
@@ -77,47 +79,33 @@ namespace MikroStok.Domain.Tests
                 Id = Guid.NewGuid(),
                 Name = "łerhałs"
             };
-            var deleteCommand = new DeleteWarehouseCommand(createCommand.Id);
+            var deleteCommand = new DeleteWarehouseCommand(createCommand.Id, 2);
 
             // Act
             await _commandsBus.Send(createCommand);
             await _commandsBus.Send(deleteCommand);
 
             // Assert
-            var aggregate = await _aggregateRepository.Load<WarehouseAggregate>(createCommand.Id);
+            var projectionResult = await _documentStore.QuerySession()
+                .Query<Warehouse>()
+                .Where(x => x.Id == createCommand.Id)
+                .SingleOrDefaultAsync();
 
-            Assert.AreEqual(createCommand.Name, aggregate.Name);
-            Assert.AreEqual(2, aggregate.Version);
-            Assert.AreEqual(true, aggregate.IsDeleted);
-        }
-
-        [Test]
-        public async Task WhenCreatedAndDeleted_CanReadStateFromAfterCreatedEvent()
-        {
-            // Arrange
-            var createCommand = new CreateWarehouseCommand
-            {
-                Id = Guid.NewGuid(),
-                Name = "łerhałs"
-            };
-            var deleteCommand = new DeleteWarehouseCommand(createCommand.Id);
-
-            // Act
-            await _commandsBus.Send(createCommand);
-            await _commandsBus.Send(deleteCommand);
-
-            // Assert
-            var aggregate = await _aggregateRepository.Load<WarehouseAggregate>(createCommand.Id, 1);
-
-            Assert.AreEqual(createCommand.Name, aggregate.Name);
-            Assert.AreEqual(1, aggregate.Version);
-            Assert.AreEqual(false, aggregate.IsDeleted);
+            Assert.IsNull(projectionResult);
         }
 
         [TearDown]
         public async Task Cleanup()
         {
-            // TODO: Remove created events
+            var session = _documentStore.OpenSession();
+            session.DeleteWhere<Warehouse>(x => true);
+            await session.SaveChangesAsync();
+
+            var connection = new NpgsqlConnection("host=localhost;database=mt5;username=postgres;password=postgres");
+            using (connection.OpenAsync())
+            {
+                _documentStore.Events.RemoveAllObjects(new DdlRules(), connection);
+            }
         }
     }
 }

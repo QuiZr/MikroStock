@@ -1,24 +1,24 @@
 using System.Threading.Tasks;
+using Marten;
 using MikroStok.CQRS.Core.Commands.Interfaces;
-using MikroStok.Domain.Aggregates;
-using MikroStok.ES.Core;
+using MikroStok.Domain.Events;
+using MikroStok.ES.Core.Events;
 
 namespace MikroStok.Domain.Commands
 {
     public class DeleteWarehouseCommandHandler : IHandleCommand<DeleteWarehouseCommand>
     {
-        private readonly IAggregateRepository _aggregateRepository;
+        private readonly IEventBus _eventBus;
 
-        public DeleteWarehouseCommandHandler(IAggregateRepository aggregateRepository)
+        public DeleteWarehouseCommandHandler(IEventBus eventBus)
         {
-            _aggregateRepository = aggregateRepository;
+            _eventBus = eventBus;
         }
 
         public async Task Handle(DeleteWarehouseCommand command)
         {
-            var aggregate = await _aggregateRepository.Load<WarehouseAggregate>(command.Id);
-            aggregate.Delete(command);
-            _aggregateRepository.Store(aggregate);
+            var e = new WarehouseDeletedEvent(command.Id, command.Version);
+            await _eventBus.Publish(e);
         }
     }
 }

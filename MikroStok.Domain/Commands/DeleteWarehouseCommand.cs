@@ -5,11 +5,13 @@ namespace MikroStok.Domain.Commands
 {
     public class DeleteWarehouseCommand : ICommand
     {
-        public DeleteWarehouseCommand(Guid id)
+        public DeleteWarehouseCommand(Guid id, int version)
         {
             Id = id;
+            Version = version;
         }
 
         public Guid Id { get; set; }
+        public int Version { get; set; }
     }
 }
