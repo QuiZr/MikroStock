@@ -49,11 +49,11 @@ namespace MikroStok.Domain.Tests
 
             // Assert
             var query = new GetWarehousesQuery();
-            var projectionResult = (await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query)).Single();
+            var queryResult = (await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query)).Single();
 
-            Assert.AreEqual(createCommand.Id, projectionResult.Id);
-            Assert.AreEqual(createCommand.Name, projectionResult.Name);
-            Assert.AreEqual(1, projectionResult.Version);
+            Assert.AreEqual(createCommand.Id, queryResult.Id);
+            Assert.AreEqual(createCommand.Name, queryResult.Name);
+            Assert.AreEqual(1, queryResult.Version);
         }
 
         [Test]
@@ -88,9 +88,9 @@ namespace MikroStok.Domain.Tests
 
             // Assert
             var query = new GetWarehousesQuery();
-            var projectionResult = await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
+            var queryResult = await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
 
-            Assert.IsEmpty(projectionResult);
+            Assert.IsEmpty(queryResult);
         }
 
         [Test]
@@ -114,19 +114,24 @@ namespace MikroStok.Domain.Tests
 
             // Assert
             var query = new GetWarehousesQuery();
-            var projectionResult = await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
+            var queryResult = await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
 
-            Assert.AreEqual(2, projectionResult.Count);
-            Assert.True(projectionResult.Any(x => x.Name == createCommand1.Name));
-            Assert.True(projectionResult.Any(x => x.Name == createCommand2.Name));
+            Assert.AreEqual(2, queryResult.Count);
+            Assert.True(queryResult.Any(x => x.Name == createCommand1.Name));
+            Assert.True(queryResult.Any(x => x.Name == createCommand2.Name));
+            Assert.True(queryResult.Any(x => x.Id == createCommand1.Id));
+            Assert.True(queryResult.Any(x => x.Id == createCommand2.Id));
+            Assert.True(queryResult.All(x => x.Version == 1));
         }
         
         [TearDown]
         public async Task Cleanup()
         {
-            var session = _documentStore.OpenSession();
-            session.DeleteWhere<Warehouse>(x => true);
-            await session.SaveChangesAsync();
+            using (var session = _documentStore.OpenSession())
+            {
+                session.DeleteWhere<Warehouse>(x => true);
+                await session.SaveChangesAsync();
+            }
 
             var connection = new NpgsqlConnection("host=localhost;database=mt5;username=postgres;password=postgres");
             using (connection.OpenAsync())

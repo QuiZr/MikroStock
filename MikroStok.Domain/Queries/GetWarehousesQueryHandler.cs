@@ -17,9 +17,12 @@ namespace MikroStok.Domain.Queries
 
         public async Task<IReadOnlyList<Warehouse>> Handle(GetWarehousesQuery query)
         {
-            return await _documentStore.QuerySession()
-                .Query<Warehouse>()
-                .ToListAsync();
+            using (var session = _documentStore.QuerySession())
+            {
+                return await session
+                    .Query<Warehouse>()
+                    .ToListAsync();
+            }
         }
     }
 }
