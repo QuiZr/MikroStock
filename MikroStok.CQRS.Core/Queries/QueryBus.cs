@@ -13,7 +13,7 @@ namespace MikroStok.CQRS.Core.Queries
             _handlersFactory = handlersFactory;
         }
 
-        public async Task<TResult> Send<TQuery, TResult>(TQuery query) where TQuery : IQuery
+        public async Task<TResult> Query<TQuery, TResult>(TQuery query) where TQuery : IQuery
         {
             var handler = (IHandleQuery<TQuery, TResult>) _handlersFactory(typeof(TQuery));
             return await handler.Handle(query);

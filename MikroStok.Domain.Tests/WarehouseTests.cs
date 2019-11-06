@@ -34,7 +34,6 @@ namespace MikroStok.Domain.Tests
             _documentStore = container.Resolve<IDocumentStore>();
         }
 
-
         [Test]
         public async Task WhenCreated_CanBeReadProperly()
         {
@@ -50,7 +49,7 @@ namespace MikroStok.Domain.Tests
 
             // Assert
             var query = new GetWarehousesQuery();
-            var projectionResult = (await _queryBus.Send<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query)).Single();
+            var projectionResult = (await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query)).Single();
 
             Assert.AreEqual(createCommand.Id, projectionResult.Id);
             Assert.AreEqual(createCommand.Name, projectionResult.Name);
@@ -89,7 +88,7 @@ namespace MikroStok.Domain.Tests
 
             // Assert
             var query = new GetWarehousesQuery();
-            var projectionResult = await _queryBus.Send<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
+            var projectionResult = await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
 
             Assert.IsEmpty(projectionResult);
         }
@@ -115,7 +114,7 @@ namespace MikroStok.Domain.Tests
 
             // Assert
             var query = new GetWarehousesQuery();
-            var projectionResult = await _queryBus.Send<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
+            var projectionResult = await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(query);
 
             Assert.AreEqual(2, projectionResult.Count);
             Assert.True(projectionResult.Any(x => x.Name == createCommand1.Name));

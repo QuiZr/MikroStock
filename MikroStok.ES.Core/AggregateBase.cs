@@ -16,8 +16,6 @@ namespace MikroStok.ES.Core
         // For protecting the state, i.e. conflict prevention
         public int Version { get; protected set; }
 
-        public bool IsDeleted { get; protected set; }
-
         // Get the deltas, i.e. events that make up the state, not yet persisted
         public IEnumerable<object> GetUncommittedEvents()
         {
