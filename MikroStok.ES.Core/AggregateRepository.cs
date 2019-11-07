@@ -33,7 +33,7 @@ namespace MikroStok.ES.Core
             using (var session = _store.LightweightSession())
             {
                 var aggregate = await session.Events.AggregateStreamAsync<T>(id, version ?? 0);
-                return aggregate ?? throw new InvalidOperationException($"No aggregate by id {id}.");
+                return aggregate;
             }
         }
     }

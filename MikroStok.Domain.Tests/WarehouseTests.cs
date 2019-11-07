@@ -19,31 +19,8 @@ using NUnit.Framework;
 
 namespace MikroStok.Domain.Tests
 {
-    public class WarehouseTests
+    public class WarehouseTests : DomainTestBase
     {
-        private IQueryBus _queryBus;
-        private ICommandsBus _commandsBus;
-        private IDocumentStore _documentStore;
-        private IDaemon _projectionDaemon;
-
-        [SetUp]
-        public void Setup()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterModule(new DomainTestsModule());
-            var container = builder.Build();
-
-            _queryBus = container.Resolve<IQueryBus>();
-            _commandsBus = container.Resolve<ICommandsBus>();
-            _documentStore = container.Resolve<IDocumentStore>();
-            _projectionDaemon = _documentStore.BuildProjectionDaemon(settings: new DaemonSettings
-            {
-                LeadingEdgeBuffer = 50.Milliseconds(),
-                FetchingCooldown = 50.Milliseconds()
-            });
-            _projectionDaemon.StartAll();
-        }
-
         [Test]
         public async Task WhenCreated_CanBeReadProperly()
         {
@@ -135,25 +112,6 @@ namespace MikroStok.Domain.Tests
             Assert.True(queryResult.Any(x => x.Id == createCommand1.Id));
             Assert.True(queryResult.Any(x => x.Id == createCommand2.Id));
             Assert.True(queryResult.All(x => x.Version == 1));
-        }
-        
-        [TearDown]
-        public async Task Cleanup()
-        {
-            await _projectionDaemon.StopAll();
-            _projectionDaemon.Dispose();
-            
-            using (var session = _documentStore.OpenSession())
-            {
-                session.DeleteWhere<Warehouse>(x => true);
-                await session.SaveChangesAsync();
-            }
-
-            var connection = new NpgsqlConnection("host=localhost;database=mt5;username=postgres;password=postgres");
-            using (connection.OpenAsync())
-            {
-                _documentStore.Events.RemoveAllObjects(new DdlRules(), connection);
-            }
         }
     }
 }

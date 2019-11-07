@@ -5,10 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Aggregates" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\MikroStok.CQRS.Core\MikroStok.CQRS.Core.csproj" />
       <ProjectReference Include="..\MikroStok.ES.Core\MikroStok.ES.Core.csproj" />
     </ItemGroup>

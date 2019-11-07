@@ -23,6 +23,7 @@ namespace MikroStok.Domain.Tests
                 x.Events.UseAggregatorLookup(AggregationLookupStrategy.UsePrivateApply);
                 x.Connection("host=localhost;database=mt5;username=postgres;password=postgres");
                 x.Events.AsyncProjections.Add<WarehouseProjection>();
+                x.Events.AsyncProjections.Add<StockProjection>();
             })).As<IDocumentStore>();
             builder.Register(_ => new AggregateRepository(_.Resolve<IDocumentStore>())).As<IAggregateRepository>();
         }

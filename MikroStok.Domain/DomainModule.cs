@@ -1,7 +1,10 @@
+using System;
 using Autofac;
 using FluentValidation;
 using MikroStok.CQRS.Core.Commands.Interfaces;
 using MikroStok.CQRS.Core.Queries.Interfaces;
+using MikroStok.Domain.Commands;
+using MikroStok.Domain.Queries;
 
 namespace MikroStok.Domain
 {
@@ -20,7 +23,19 @@ namespace MikroStok.Domain
                 .AsImplementedInterfaces();
             
             builder.RegisterAssemblyTypes(ThisAssembly)
-                .AsClosedTypesOf(typeof(IHandleQuery<,>)).AsImplementedInterfaces();
+                .Where(x => x.IsAssignableTo<IHandleQuery>())
+                .AsImplementedInterfaces();
+            
+            builder.Register<Func< (Type, Type), IHandleQuery>>(c =>
+            {
+                var ctx = c.Resolve<IComponentContext>();
+
+                return t =>
+                {
+                    var handlerType = typeof(IHandleQuery<,>).MakeGenericType(t.Item1, t.Item2);
+                    return (IHandleQuery) ctx.Resolve(handlerType);
+                };
+            });
         }
     }
 }
