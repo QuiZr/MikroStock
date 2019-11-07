@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Baseline.Dates;
 using FluentValidation;
 using Marten;
+using Marten.Events.Projections.Async;
 using Marten.Storage;
 using MikroStok.CQRS.Core.Commands.Interfaces;
 using MikroStok.CQRS.Core.Queries.Interfaces;
@@ -21,6 +24,7 @@ namespace MikroStok.Domain.Tests
         private IQueryBus _queryBus;
         private ICommandsBus _commandsBus;
         private IDocumentStore _documentStore;
+        private IDaemon _projectionDaemon;
 
         [SetUp]
         public void Setup()
@@ -32,6 +36,12 @@ namespace MikroStok.Domain.Tests
             _queryBus = container.Resolve<IQueryBus>();
             _commandsBus = container.Resolve<ICommandsBus>();
             _documentStore = container.Resolve<IDocumentStore>();
+            _projectionDaemon = _documentStore.BuildProjectionDaemon(settings: new DaemonSettings
+            {
+                LeadingEdgeBuffer = 50.Milliseconds(),
+                FetchingCooldown = 50.Milliseconds()
+            });
+            _projectionDaemon.StartAll();
         }
 
         [Test]
@@ -46,6 +56,7 @@ namespace MikroStok.Domain.Tests
 
             // Act
             await _commandsBus.Send(createCommand);
+            await _projectionDaemon.WaitForNonStaleResults();
 
             // Assert
             var query = new GetWarehousesQuery();
@@ -85,6 +96,7 @@ namespace MikroStok.Domain.Tests
             // Act
             await _commandsBus.Send(createCommand);
             await _commandsBus.Send(deleteCommand);
+            await _projectionDaemon.WaitForNonStaleResults();
 
             // Assert
             var query = new GetWarehousesQuery();
@@ -111,6 +123,7 @@ namespace MikroStok.Domain.Tests
             // Act
             await _commandsBus.Send(createCommand1);
             await _commandsBus.Send(createCommand2);
+            await _projectionDaemon.WaitForNonStaleResults();
 
             // Assert
             var query = new GetWarehousesQuery();
@@ -127,6 +140,9 @@ namespace MikroStok.Domain.Tests
         [TearDown]
         public async Task Cleanup()
         {
+            await _projectionDaemon.StopAll();
+            _projectionDaemon.Dispose();
+            
             using (var session = _documentStore.OpenSession())
             {
                 session.DeleteWhere<Warehouse>(x => true);
