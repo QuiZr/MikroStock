@@ -3,8 +3,6 @@ using Autofac;
 using FluentValidation;
 using MikroStok.CQRS.Core.Commands.Interfaces;
 using MikroStok.CQRS.Core.Queries.Interfaces;
-using MikroStok.Domain.Commands;
-using MikroStok.Domain.Queries;
 
 namespace MikroStok.Domain
 {

@@ -1,20 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
-using Baseline.Dates;
 using FluentValidation;
-using Marten;
-using Marten.Events.Projections.Async;
-using Marten.Storage;
-using MikroStok.CQRS.Core.Commands.Interfaces;
-using MikroStok.CQRS.Core.Queries.Interfaces;
 using MikroStok.Domain.Commands;
 using MikroStok.Domain.Models;
 using MikroStok.Domain.Queries;
-using Npgsql;
 using NUnit.Framework;
 
 namespace MikroStok.Domain.Tests

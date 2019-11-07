@@ -1,4 +1,3 @@
-using System;
 using Autofac;
 using MikroStok.CQRS.Core.Queries.Interfaces;
 

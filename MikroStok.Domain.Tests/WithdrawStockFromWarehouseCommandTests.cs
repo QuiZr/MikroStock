@@ -60,6 +60,39 @@ namespace MikroStok.Domain.Tests
         }
         
         [Test]
+        public async Task WhenWarehouseIsPresentRemoveMoreThanStackContains_ThrowsValidationError()
+        {
+            // Arrange
+            var createWarehouseCommand = new CreateWarehouseCommand()
+            {
+                Id = Guid.NewGuid(),
+                Name = "łerjhous"
+            };
+            var addStockCommand = new AddStockToWarehouseCommand()
+            {
+                Id = Guid.NewGuid(),
+                ProductName = "łerhałs",
+                Count = 5,
+                WarehouseId = createWarehouseCommand.Id
+            };
+            var withdrawCommand = new WithdrawStockFromWarehouseCommand()
+            {
+                Id = addStockCommand.Id,
+                Version = 1,
+                Count = addStockCommand.Count + 1,
+            };
+            
+            // Act
+            await _commandsBus.Send(createWarehouseCommand);
+            await _projectionDaemon.WaitForNonStaleResults();
+            await _commandsBus.Send(addStockCommand);
+            await _projectionDaemon.WaitForNonStaleResults();
+
+            // Act & Assert
+            Assert.CatchAsync<ValidationException>(() => _commandsBus.Send(withdrawCommand));
+        }
+        
+        [Test]
         public async Task WhenWarehouseIsPresentAndStockValid_CanBeReadProperly()
         {
             // Arrange

@@ -22,7 +22,7 @@ namespace MikroStok.Domain.Aggregates
         
         public void Withdraw(WithdrawStockFromWarehouseCommand command)
         {
-            if (command.Count < Count)
+            if (command.Count > Count)
             {
                 throw new ValidationException("Stock has less stock than required");
             }
@@ -39,13 +39,13 @@ namespace MikroStok.Domain.Aggregates
                 Id = e.Id;
             }
 
-            Count += Count;
+            Count += e.Count;
             Version++;
         }
         
         private void Apply(StockWithdrawnEvent e)
         {
-            Count -= Count;
+            Count -= e.Count;
             Version++;
         }
         

@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Marten;
 using MikroStok.CQRS.Core.Commands.Interfaces;
 using MikroStok.Domain.Events;
 using MikroStok.ES.Core.Events;
