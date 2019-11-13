@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MikroStok.Domain", "MikroSt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MikroStok.Domain.Tests", "MikroStok.Domain.Tests\MikroStok.Domain.Tests.csproj", "{AA29F54D-2472-4900-99BD-D46F0315267B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MikroStok.API", "MikroStok.API\MikroStok.API.csproj", "{7A589A68-9C49-4737-ADA2-A4C3607CFA5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{AA29F54D-2472-4900-99BD-D46F0315267B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA29F54D-2472-4900-99BD-D46F0315267B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA29F54D-2472-4900-99BD-D46F0315267B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A589A68-9C49-4737-ADA2-A4C3607CFA5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A589A68-9C49-4737-ADA2-A4C3607CFA5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A589A68-9C49-4737-ADA2-A4C3607CFA5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A589A68-9C49-4737-ADA2-A4C3607CFA5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
