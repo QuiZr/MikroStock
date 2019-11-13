@@ -24,7 +24,7 @@ namespace MikroStok.Domain.Commands
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
             
-            var aggregate = await _aggregateRepository.Load<StockAggregate>(command.Id);
+            var aggregate = await _aggregateRepository.Load<StockAggregate>(command.Id, command.Version);
             if (aggregate == null || aggregate.Version == 0)
             {
                 throw new ValidationException("No stock with provided ID exists");

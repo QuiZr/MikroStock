@@ -9,5 +9,6 @@ namespace MikroStok.Domain.Commands
         public Guid WarehouseId { get; set; }
         public string ProductName { get; set; }
         public int Count { get; set; }
+        public int Version { get; set; }
     }
 }

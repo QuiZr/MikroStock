@@ -33,21 +33,22 @@ namespace MikroStok.API.Controllers
             var stocks = await _queryBus.Query<GetStockInWarehouseQuery, IReadOnlyList<Stock>>(
                 new GetStockInWarehouseQuery{WarehouseId = warehouseId}
                 );
-            var stockId = stocks.SingleOrDefault(x => x.ProductName == productName)?.Id ?? Guid.NewGuid();
-            return await AddStockToWarehouseWithKnownStockId(stockId, warehouseId, productName, count);
+            var stock = stocks.SingleOrDefault(x => x.ProductName == productName);
+            return await AddStockToWarehouseWithKnownStockId(stock?.Id ?? Guid.NewGuid(), warehouseId, productName, count, stock?.Version ?? 0);
         }
         
         [HttpPut]
         [Produces(typeof(Guid))]
         [Route("AddStockToWarehouseWithKnownStockId")]
-        public async Task<IActionResult> AddStockToWarehouseWithKnownStockId(Guid stockId, Guid warehouseId, string productName, int count)
+        public async Task<IActionResult> AddStockToWarehouseWithKnownStockId(Guid stockId, Guid warehouseId, string productName, int count, int version)
         {
             var command = new AddStockToWarehouseCommand
             {
                 Id = stockId,
                 WarehouseId = warehouseId,
                 ProductName = productName,
-                Count = count
+                Count = count,
+                Version = version
             };
             await _commandBus.Send(command);
 
@@ -62,19 +63,20 @@ namespace MikroStok.API.Controllers
             var stocks = await _queryBus.Query<GetStockInWarehouseQuery, IReadOnlyList<Stock>>(
                 new GetStockInWarehouseQuery{WarehouseId = warehouseId}
             );
-            var stockId = stocks.SingleOrDefault(x => x.ProductName == productName)?.Id ?? Guid.NewGuid();
-            return await WithdrawStockFromWarehouseWithKnownStockId(stockId, count);
+            var stock = stocks.SingleOrDefault(x => x.ProductName == productName);
+            return await WithdrawStockFromWarehouseWithKnownStockId(stock?.Id ?? Guid.NewGuid(), count, stock?.Version ?? 0);
         }
         
         [HttpPut]
         [Produces(typeof(Guid))]
         [Route("WithdrawStockFromWarehouseWithKnownStockId")]
-        public async Task<IActionResult> WithdrawStockFromWarehouseWithKnownStockId(Guid stockId, int count)
+        public async Task<IActionResult> WithdrawStockFromWarehouseWithKnownStockId(Guid stockId, int count, int version)
         {
             var command = new WithdrawStockFromWarehouseCommand()
             {
                 Id = stockId,
-                Count = count
+                Count = count,
+                Version = version
             };
             await _commandBus.Send(command);
 

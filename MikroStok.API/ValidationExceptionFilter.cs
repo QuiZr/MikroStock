@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +10,16 @@ namespace MikroStok.API
     {
         public void OnException(ExceptionContext context)
         {
-            if (context.Exception is ValidationException e)
+            switch (context.Exception)
             {
-                context.ExceptionHandled = true;
-                context.Result = new BadRequestObjectResult(e.Errors.Select(x => x.ErrorMessage));
+                case ValidationException e:
+                    context.ExceptionHandled = true;
+                    context.Result = new BadRequestObjectResult(e.Errors.Select(x => x.ErrorMessage));
+                    break;
+                case ArgumentException e:
+                    context.ExceptionHandled = true;
+                    context.Result = new BadRequestObjectResult(e.ParamName + ": " + e.Message);
+                    break;
             }
         }
     }

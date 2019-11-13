@@ -21,7 +21,7 @@ namespace MikroStok.Domain.Validators
             RuleFor(x => x.Count).GreaterThanOrEqualTo(0);
             RuleFor(x => x.WarehouseId).MustAsync(BeValidWarehouseId);
         }
-
+        
         private async Task<bool> BeValidWarehouseId(Guid warehouseId, CancellationToken ct)
         {
             var warehouses = await _queryBus.Query<GetWarehousesQuery, IReadOnlyList<Warehouse>>(new GetWarehousesQuery());

@@ -24,7 +24,7 @@ namespace MikroStok.Domain.Tests
             };
             
             // Act & Assert
-            Assert.CatchAsync<ValidationException>(() => _commandsBus.Send(withdrawCommand));
+            Assert.CatchAsync<ArgumentException>(() => _commandsBus.Send(withdrawCommand));
         }
         
         [Test]
@@ -41,7 +41,8 @@ namespace MikroStok.Domain.Tests
                 Id = Guid.NewGuid(),
                 ProductName = "łerhałs",
                 Count = 5,
-                WarehouseId = createWarehouseCommand.Id
+                WarehouseId = createWarehouseCommand.Id,
+                Version = 0
             };
             var withdrawCommand = new WithdrawStockFromWarehouseCommand()
             {
@@ -106,7 +107,8 @@ namespace MikroStok.Domain.Tests
                 Id = Guid.NewGuid(),
                 ProductName = "łerhałs",
                 Count = 5,
-                WarehouseId = createWarehouseCommand.Id
+                WarehouseId = createWarehouseCommand.Id,
+                Version = 0
             };
             var withdrawCommand = new WithdrawStockFromWarehouseCommand()
             {

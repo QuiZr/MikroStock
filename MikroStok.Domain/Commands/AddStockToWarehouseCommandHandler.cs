@@ -24,7 +24,7 @@ namespace MikroStok.Domain.Commands
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
             
-            var aggregate = await _aggregateRepository.Load<StockAggregate>(command.Id);
+            var aggregate = await _aggregateRepository.Load<StockAggregate>(command.Id, command.Version);
             aggregate.Add(command);
             _aggregateRepository.Store(aggregate);
         }

@@ -28,11 +28,15 @@ namespace MikroStok.ES.Core
             aggregate.ClearUncommittedEvents();
         }
 
-        public async Task<T> Load<T>(Guid id, int? version = null) where T : AggregateBase, new()
+        public async Task<T> Load<T>(Guid id, int? expectedVersion = null) where T : AggregateBase, new()
         {
             using (var session = _store.LightweightSession())
             {
-                var aggregate = await session.Events.AggregateStreamAsync<T>(id, version ?? 0);
+                var aggregate = await session.Events.AggregateStreamAsync<T>(id, 0);
+                if (expectedVersion != null && aggregate.Version != expectedVersion)
+                {
+                    throw new ArgumentException("Provided version isn't the newest one", nameof(expectedVersion));
+                }
                 return aggregate;
             }
         }
