@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MikroStok.API
 {
-    public class ValidationExceptionFilter : IExceptionFilter
+    public class ExceptionFilter : IExceptionFilter
     {
         public void OnException(ExceptionContext context)
         {
@@ -14,7 +14,7 @@ namespace MikroStok.API
             {
                 case ValidationException e:
                     context.ExceptionHandled = true;
-                    context.Result = new BadRequestObjectResult(e.Errors.Select(x => x.ErrorMessage));
+                    context.Result = new BadRequestObjectResult(e.Errors?.Any() ?? false ? e.Errors.Select(x => x.ErrorMessage) : new []{e.Message});
                     break;
                 case ArgumentException e:
                     context.ExceptionHandled = true;

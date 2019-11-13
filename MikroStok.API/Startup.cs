@@ -28,7 +28,7 @@ namespace MikroStok.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers(x => x.Filters.Add(typeof(ValidationExceptionFilter)));
+            services.AddControllers(x => x.Filters.Add(typeof(ExceptionFilter)));
 
             services.AddSwaggerGen(c =>
             {
